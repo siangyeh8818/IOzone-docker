@@ -11,7 +11,9 @@ if [ "$TestModel" = "auto-mode" ];then
 elif [ "$TestModel" = "throughput" ];then
    echo "吞吐量測試, iozone測試模式選用'0=write/rewrite , 1=read/re-read'"
    echo "並發數 ：$Concurrency"
-   ./iozone -s $FileSize -r $RecordSize -i 0 -i 1 -t $Concurrency   -F /mnt/iozone -Rb ./iozone.xls
+   cp iozone /mnt
+   chmod +x /mnt/iozone
+   bash -c "/mnt/iozone -s $FileSize -r $RecordSize -i 0 -i 1 -t $Concurrency  -Rb ./iozone.xls"
 else
    echo "can't identify the value of TestModel (env)"
    echo "load default model ........" 
