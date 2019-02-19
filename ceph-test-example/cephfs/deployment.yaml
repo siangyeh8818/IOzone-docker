@@ -1,0 +1,47 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: iozone
+spec:
+  replicas: 1
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: iozone
+    spec:
+      containers:
+      - name: iozone
+        image: siangyeh8818/iozone:test
+        imagePullPolicy: Always
+        env:
+        # iozone測試可分成auto-mode跟throughput模式,必選其一,預設會是auto-mode
+        - name: TestModel
+          value: "auto-mode"
+        #執行吞吐量測試時,設定process數量,也就是併發數
+        - name: Concurrency
+          value: "1"
+        #寫入的record size大小 , 最大為1m
+        - name: FileSize
+          value: "4G"
+        #寫入的檔案大小
+        - name: RecordSize
+          value: "1m"
+        volumeMounts:
+        - mountPath: "/mnt"
+          name: iozone-write
+      volumes:
+      - name: iozone-write
+        flexVolume:
+          driver: ceph.rook.io/rook
+          fsType: ceph
+          options:
+            fsName: siang-folder
+            # name of the filesystem specified in the filesystem CRD.
+            clusterNamespace: rook-ceph
