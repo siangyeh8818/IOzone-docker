@@ -55,15 +55,11 @@ cat <<EOF > ${KEYRING_FILE}
 key = ${ROOK_ADMIN_SECRET}
 EOF
 
-echo "Start to 壓力測試對rbd.........."
-/bin/bash -c /iozone3_327/src/current/stresstest-ceph-rbd.sh &
-
 # write the initial config file
 write_endpoints
 
 # continuously update the mon endpoints if they fail over
-watch_endpoints
+watch_endpoints &
 
 echo "Start to 壓力測試對rbd.........."
-sleep 2s
 /bin/bash -c /iozone3_327/src/current/stresstest-ceph-rbd.sh

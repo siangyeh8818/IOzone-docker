@@ -19,6 +19,7 @@ spec:
       containers:
       - name: rook-ceph-tools-stress-test
         image: siangyeh8818/iozone:stress-rbd
+        imagePullPolicy: Always
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         imagePullPolicy: IfNotPresent
