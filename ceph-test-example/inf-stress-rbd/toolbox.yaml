@@ -39,10 +39,10 @@ spec:
             value: "1"
           #寫入的record size大小 , 最大為1m
           - name: FileSize
-            value: "4G"
+            value: "8G"
           #寫入的檔案大小
           - name: RecordSize
-            value: "1m"
+            value: "64k"
         securityContext:
           privileged: true
         volumeMounts:
