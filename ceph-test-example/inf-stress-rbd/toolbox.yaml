@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rook-ceph-tools-stress-test
+  namespace: rook-ceph
+  labels:
+    app: rook-ceph-tools-stress-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rook-ceph-tools-stress-test
+  template:
+    metadata:
+      labels:
+        app: rook-ceph-tools-stress-test
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: rook-ceph-tools-stress-test
+        image: siangyeh8818/iozone:stress-rbd
+        command: ["/tini"]
+        args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: ROOK_ADMIN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: rook-ceph-mon
+                key: admin-secret
+          # ceph-pool池名
+          - name: PoolName
+            value: "replicapool"
+          # iozone測試可分成auto-mode跟throughput模式,必選其一,預設會是auto-mode
+          - name: TestModel
+            value: "auto-mode"
+          #執行吞吐量測試時,設定process數量,也就是併發數
+          - name: Concurrency
+            value: "1"
+          #寫入的record size大小 , 最大為1m
+          - name: FileSize
+            value: "4G"
+          #寫入的檔案大小
+          - name: RecordSize
+            value: "1m"
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - mountPath: /dev
+            name: dev
+          - mountPath: /sys/bus
+            name: sysbus
+          - mountPath: /lib/modules
+            name: libmodules
+          - name: mon-endpoint-volume
+            mountPath: /etc/rook
+          - mountPath: "/mnt"
+            name: iozone-write
+      # if hostNetwork: false, the "rbd map" command hangs, see https://github.com/rook/rook/issues/2021
+      hostNetwork: true
+      volumes:
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: sysbus
+          hostPath:
+            path: /sys/bus
+        - name: libmodules
+          hostPath:
+            path: /lib/modules
+        - name: mon-endpoint-volume
+          configMap:
+            name: rook-ceph-mon-endpoints
+            items:
+            - key: data
+              path: mon-endpoints
+        - name: iozone-write
+          persistentVolumeClaim:
+            claimName: ceph-rbd-pvc
