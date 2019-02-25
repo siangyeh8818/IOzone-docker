@@ -1,5 +1,5 @@
 #!/bin/bash
-
+sleep 5s
 echo "測試過程檔案寫入大小 : $FileSize "
 echo "測試過程寫入紀錄大小 : $RecordSize "
 echo "壓測過程中刪除的pool名稱 : $PoolName "
