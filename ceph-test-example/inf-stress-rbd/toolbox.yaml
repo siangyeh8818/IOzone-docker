@@ -22,7 +22,6 @@ spec:
         imagePullPolicy: Always
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
-        imagePullPolicy: IfNotPresent
         env:
           - name: ROOK_ADMIN_SECRET
             valueFrom:
